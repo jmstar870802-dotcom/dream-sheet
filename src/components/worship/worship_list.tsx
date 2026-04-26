@@ -21,7 +21,7 @@ async function WorShipData(){
 
   const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_SERVER_URL}/sheet?${query.toString()}`,
-      { next: { tags: [`worship-list` , `cell`] },
+       cache: "no-store"
   });
 
   if (!response.ok) {
