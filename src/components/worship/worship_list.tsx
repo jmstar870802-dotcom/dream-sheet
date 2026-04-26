@@ -25,7 +25,7 @@ async function WorShipData(){
          next: { tags: [`worship-list`, `cell`] },
          cache: "no-store"  // ← 이걸 추가
        }
-  });
+  );
 
   if (!response.ok) {
       throw new Error(`서버 응답 에러: ${response.status}`);
