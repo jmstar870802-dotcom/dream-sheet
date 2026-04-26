@@ -36,7 +36,7 @@ const navItems: NavItem[] = [
       { name: "콘티관리", path: "/conti-mngt", pro: false },
       { name: "콘티조회", path: "/conti-serach", pro: false },
       { name: "찬양등록", path: "/worship-mngt", pro: false },
-      { name: "찬양검색", path: "/worship-search", pro: true },
+      { name: "찬양검색", path: "/worship-search", pro: false },
       { name: "찬양통계", path: "/worship-statistics", pro: false },
     ],
   }
