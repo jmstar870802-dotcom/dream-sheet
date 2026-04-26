@@ -69,11 +69,8 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
 
   return (
     <div>
-      <div className='flex gap-1'>
-        <div>
-            
-        </div>
-        <div>
+      <div>
+        <div className='flex gap-1'>
           <div>
             <Button size="sm" variant="primary" className="mx-auto w-30 h-10" buttonType="button" onClick={fnKeyDown}>
                 <ArrowBigDownDash className='my-0 mx-0'/>키 다운
