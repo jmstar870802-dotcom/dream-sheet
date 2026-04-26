@@ -19,10 +19,10 @@ export default async function worship({ params }: { params: Promise<{ id: number
   return (
     <div>
       <div className="w-full overflow-x-hidden
-                    md:w-full md:max-w-3xl
-                    lg:max-w-4xl
-                    xl:max-w-4xl
-                    2xl:max-w-5xl
+                    md:w-full md:max-w-2xl
+                    lg:max-w-2xl
+                    xl:max-w-3xl
+                    2xl:max-w-4xl
                     rounded-xl border border-gray-200 bg-white px-1 py-1 dark:border-gray-800 dark:bg-white/[0.03] xm:px-1 xl:py-1">
          <AbcViewer notationData={worshipData} />
       </div>

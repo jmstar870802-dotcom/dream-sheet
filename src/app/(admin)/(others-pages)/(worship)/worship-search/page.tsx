@@ -12,7 +12,7 @@ export default function BlankPage() {
   return (
    <div>
       <PageBreadcrumb pageTitle="찬양조회" />
-      <div className="min-h-full rounded-2xl border border-gray-200 bg-white px-5 py-2 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-5">
+      <div className="min-h-full rounded-lg border border-gray-200 bg-white px-1 py-2 dark:border-gray-800 dark:bg-white/[0.03] xl:px-1 xl:py-2">
         <div className="w-full">
           <WorshipList />
         </div>
