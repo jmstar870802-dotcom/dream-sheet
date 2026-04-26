@@ -21,7 +21,10 @@ async function WorShipData(){
 
   const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_SERVER_URL}/sheet?${query.toString()}`,
-       cache: "no-store"
+       { 
+         next: { tags: [`worship-list`, `cell`] },
+         cache: "no-store"  // ← 이걸 추가
+       }
   });
 
   if (!response.ok) {
