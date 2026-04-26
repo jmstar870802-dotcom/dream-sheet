@@ -14,4 +14,6 @@ export interface SheetData{
   img_url : string;
   createdAt: Date;  
   updatedAt: Date;
+  visualTranspose : number;
+
 }

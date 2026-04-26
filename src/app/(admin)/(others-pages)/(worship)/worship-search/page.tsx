@@ -2,7 +2,6 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import WorshipList from "@/components/worship/worship_list";
 
 import { Metadata } from "next";
-import React from "react";
 
 export const metadata: Metadata = {
   title: "찬양관리 > 찬양조회",
@@ -13,8 +12,8 @@ export default function BlankPage() {
   return (
    <div>
       <PageBreadcrumb pageTitle="찬양조회" />
-      <div className="min-h-full rounded-2xl border border-gray-200 bg-white px-5 py-5 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-5">
-        <div className="mx-auto w-full">
+      <div className="min-h-full rounded-2xl border border-gray-200 bg-white px-5 py-2 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-5">
+        <div className="w-full">
           <WorshipList />
         </div>
       </div>

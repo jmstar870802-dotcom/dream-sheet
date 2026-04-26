@@ -16,7 +16,6 @@ export default async function worship({ params }: { params: Promise<{ id: number
   }
 
   const worshipData: SheetData = await response.json();
-
   return (
     <div>
       <div className="w-full overflow-x-hidden
