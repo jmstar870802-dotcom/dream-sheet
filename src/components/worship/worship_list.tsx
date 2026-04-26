@@ -39,7 +39,7 @@ async function WorShipData(){
     <div>
       <div>
          <Searchbar/>
-      </div>
+      </div> 
       <Table>
         {/* Table Body */}
         <TableBody className="divide-y divide-gray-200 dark:divide-white/[0.05]">

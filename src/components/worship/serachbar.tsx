@@ -21,7 +21,7 @@ export default function Searchbar() {
   };
 
   const onSubmit = () => {
-    if (!search || q === search) return;
+    if (!search || title === search) return;
     router.push(`/search?title=${title}`);
   };
 
