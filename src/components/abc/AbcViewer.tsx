@@ -76,8 +76,9 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
     <div>
       <div className='flex flex-row gap-2 justify-between'>
         <div>
-            <Button size="sm" variant="primary" className="mx-auto w-30 h-10" buttonType="button" onClick={handleBack}>
-                <ArrowBigLeft className='my-0 mx-0'/>Back
+            <Button size="sm" variant="primary" className="p-1 mx-auto w-22 h-10" buttonType="button" onClick={handleBack}>
+                <ArrowBigLeft className='my-0 mx-0'/>
+                <span className=''>Back</span>
             </Button>
         </div>
         <div className='flex gap-1'>

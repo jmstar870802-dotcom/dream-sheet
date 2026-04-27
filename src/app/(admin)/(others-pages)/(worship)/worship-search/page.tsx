@@ -1,21 +1,61 @@
+// app/worship/page.tsx  (경로는 프로젝트에 맞게 조정)
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import WorshipList from "@/components/worship/worship_list";
+import SheetTable from "@/components/worship/SheetTable";
+import { Meta, SheetData } from "@/types/types";
 
-import { Metadata } from "next";
+interface SearchParams {
+  title?: string;
+  key?: string;
+  page?: string;
+  limit?: string;
+  sortKey?: string;
+  sortDir?: string;
+}
 
-export const metadata: Metadata = {
-  title: "찬양관리 > 찬양조회",
-  description: "찬양을 조회하는 프로그램",
-};
+interface PaginatedResponse {
+  data: SheetData[];
+  meta: Meta;
+}
 
-export default function BlankPage() {
+async function getSheetData(searchParams: SearchParams): Promise<PaginatedResponse> {
+
+   const query = new URLSearchParams({
+    title:   searchParams.title   ?? "",
+    key:     searchParams.key     ?? "",
+    page:    searchParams.page    ?? "1",
+    limit:   searchParams.limit   ?? "10",
+    sortKey: searchParams.sortKey ?? "id",
+    sortDir: searchParams.sortDir ?? "asc",
+  });
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/sheet?${query.toString()}`,
+    {
+      next: { tags: ["worship-list", "worship"] },
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`서버 응답 에러: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export default async function WorshipPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const params = await searchParams;  // await으로 unwrap
+  const { data, meta } = await getSheetData(params);
+  
   return (
-   <div>
-      <PageBreadcrumb pageTitle="찬양조회" />
-      <div className="min-h-full rounded-lg border border-gray-200 bg-white px-1 py-2 dark:border-gray-800 dark:bg-white/[0.03] xl:px-1 xl:py-2">
-        <div className="w-full">
-          <WorshipList />
-        </div>
+    <div>
+      <PageBreadcrumb pageTitle="찬양등록" />
+      <div className="mx-auto w-full">
+         <SheetTable data={data} meta={meta} />
       </div>
     </div>
   );

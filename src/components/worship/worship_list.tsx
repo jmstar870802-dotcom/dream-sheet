@@ -1,103 +1,243 @@
-import React from 'react';
-import ComponentCard from '../common/ComponentCard';
-import Link from "next/link";
+"use client";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useState, useMemo } from "react";
 
-import { SheetData } from '@/types/types';
-import { Monitor } from 'lucide-react';
-import Input from '../form/input/InputField';
-import Searchbar from './serachbar';
+type Status = "active" | "away" | "offline";
 
-async function WorShipData(){
-
-  const query = new URLSearchParams({
-        title : ""
-  });    
-
-  const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_SERVER_URL}/sheet?${query.toString()}`,
-       { 
-         next: { tags: [`worship-list`, `cell`] },
-         cache: "no-store" 
-       }
-  );
-
-  if (!response.ok) {
-      throw new Error(`서버 응답 에러: ${response.status}`);
-  }
-
-  const worshipData:SheetData[] = await response.json();
-
-  return(
-    <div>
-      <div>
-         <Searchbar/>
-      </div> 
-      <Table>
-        {/* Table Body */}
-        <TableBody className="divide-y divide-gray-200 dark:divide-white/[0.05]">
-          {worshipData.map((sheetData) => (
-            <TableRow key={sheetData.id} className='border-x-1 border-y-1'>
-              <TableCell className="px-1 py-1 sm:px-1 text-start">
-                <div className="flex items-center gap-2">
-                  <Link href={`/worship-search/detail/${sheetData.id}`}>
-                    <div className='border-1 w-10 h-10 flex justify-center items-center rounded-sm' >
-                      <Monitor size={30}  />
-                    </div>
-                  </Link>
-                  <div>
-                    <span className="block font-bold text-gray-800 text-theme-lg dark:text-white/90">
-                      {sheetData.title}
-                    </span>
-                    <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
-                      {sheetData.lyrics}_({sheetData.key})
-                    </span>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell className="w-25 px-1 py-1 text-gray-800 text-start text-theme-sm dark:text-gray-400">
-                <button className="flex items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
-                  <svg
-                    className="fill-current"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 18 18"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z"
-                      fill=""
-                    />
-                  </svg>
-                  Edit
-                </button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  )
-
+interface User {
+  name: string;
+  position: string;
+  dept: string;
+  status: Status;
 }
 
-export default async function WorshipList() {
+const ALL_DATA: User[] = [
+  { name: "Abram Schleifer",    position: "Sales Assistant",    dept: "Sales",       status: "active"  },
+  { name: "Charlotte Anderson", position: "Marketing Manager",  dept: "Marketing",   status: "active"  },
+  { name: "Ethan Brown",        position: "Software Engineer",  dept: "Engineering", status: "away"    },
+  { name: "Isabella Davis",     position: "UI/UX Designer",     dept: "Design",      status: "active"  },
+  { name: "James Wilson",       position: "Data Analyst",       dept: "Analytics",   status: "offline" },
+  { name: "Sophia Martinez",    position: "Product Manager",    dept: "Product",     status: "active"  },
+  { name: "Liam Johnson",       position: "DevOps Engineer",    dept: "Engineering", status: "active"  },
+  { name: "Olivia Garcia",      position: "Content Strategist", dept: "Marketing",   status: "away"    },
+  { name: "Noah Williams",      position: "QA Engineer",        dept: "Engineering", status: "offline" },
+  { name: "Emma Thompson",      position: "HR Specialist",      dept: "HR",          status: "active"  },
+];
+
+const BADGE_COLORS = [
+  "bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-200",
+  "bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-200",
+  "bg-purple-50 text-purple-800 dark:bg-purple-950 dark:text-purple-200",
+  "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200",
+  "bg-rose-50 text-rose-800 dark:bg-rose-950 dark:text-rose-200",
+  "bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-200",
+  "bg-pink-50 text-pink-800 dark:bg-pink-950 dark:text-pink-200",
+];
+
+const STATUS_CONFIG: Record<Status, { dot: string; label: string }> = {
+  active:  { dot: "bg-green-500",  label: "Active"  },
+  away:    { dot: "bg-amber-500",  label: "Away"    },
+  offline: { dot: "bg-gray-400",   label: "Offline" },
+};
+
+type SortKey = keyof Pick<User, "name" | "position" | "dept">;
+
+function getColor(name: string): string {
+  let h = 0;
+  for (const c of name) h = (h * 31 + c.charCodeAt(0)) % BADGE_COLORS.length;
+  return BADGE_COLORS[h];
+}
+
+function initials(name: string): string {
+  return name.split(" ").map((w) => w[0]).join("").toUpperCase();
+}
+
+function SortIcon({ active, dir }: { active: boolean; dir: number }) {
+  return (
+    <span className="ml-1 flex flex-col gap-[2px]">
+      <span
+        className={`block border-x-4 border-x-transparent border-b-4 ${
+          active && dir === 1 ? "border-b-gray-800 dark:border-b-gray-100" : "border-b-gray-300 dark:border-b-gray-600"
+        }`}
+      />
+      <span
+        className={`block border-x-4 border-x-transparent border-t-4 ${
+          active && dir === -1 ? "border-t-gray-800 dark:border-t-gray-100" : "border-t-gray-300 dark:border-t-gray-600"
+        }`}
+      />
+    </span>
+  );
+}
+
+export default function DataTable() {
+  const [query, setQuery] = useState("");
+  const [perPage, setPerPage] = useState(5);
+  const [page, setPage] = useState(1);
+  const [sortKey, setSortKey] = useState<SortKey | "">("");
+  const [sortDir, setSortDir] = useState(1);
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase();
+    const list = q
+      ? ALL_DATA.filter(
+          (r) =>
+            r.name.toLowerCase().includes(q) ||
+            r.position.toLowerCase().includes(q) ||
+            r.dept.toLowerCase().includes(q)
+        )
+      : [...ALL_DATA];
+
+    if (sortKey) {
+      list.sort((a, b) => a[sortKey].localeCompare(b[sortKey]) * sortDir);
+    }
+    return list;
+  }, [query, sortKey, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  const safePage = Math.min(page, totalPages);
+  const start = (safePage - 1) * perPage;
+  const pageData = filtered.slice(start, start + perPage);
+
+  function handleSort(key: SortKey) {
+    if (sortKey === key) setSortDir((d) => d * -1);
+    else { setSortKey(key); setSortDir(1); }
+    setPage(1);
+  }
+
+  function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
+    setQuery(e.target.value);
+    setPage(1);
+  }
+
+  function handlePerPage(e: React.ChangeEvent<HTMLSelectElement>) {
+    setPerPage(Number(e.target.value));
+    setPage(1);
+  }
+
+  const entryStart = filtered.length ? start + 1 : 0;
+  const entryEnd = Math.min(start + perPage, filtered.length);
 
   return (
-   <div>
-      {/* Card Body */}
-      <div className="p-1 border-t border-gray-100 dark:border-gray-800 sm:p-1">
-          <WorShipData/>
+    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden">
+      {/* Controls */}
+      <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <span>Show</span>
+          <select
+            value={perPage}
+            onChange={handlePerPage}
+            className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            {[5, 10, 25].map((n) => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+          <span>entries</span>
+        </div>
+        <div className="relative flex-1 min-w-[160px] max-w-xs">
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"
+            viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+          >
+            <circle cx="6.5" cy="6.5" r="4.5" />
+            <line x1="10.5" y1="10.5" x2="14" y2="14" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search..."
+            value={query}
+            onChange={handleSearch}
+            className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-gray-400 dark:focus:border-gray-400"
+          />
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[480px]">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+            {pageData.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-400">
+                   조회되는 찬양이 없습니다.
+                </td>
+              </tr>
+            ) : (
+              pageData.map((row) => {
+                const color = getColor(row.name);
+                const { dot, label } = STATUS_CONFIG[row.status];
+                return (
+                  <tr key={row.name} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <td className="px-6 py-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-medium flex-shrink-0 ${color}`}
+                        >
+                          {initials(row.name)}
+                        </div>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {row.name}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-3">
+                      <span className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-medium ${color}`}>
+                        {row.position}
+                      </span>
+                    </td>
+                    <td className="px-6 py-3 text-xs text-gray-500 dark:text-gray-400">
+                      {row.dept}
+                    </td>
+                    <td className="px-6 py-3">
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dot}`} />
+                        {label}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          {filtered.length
+            ? `Showing ${entryStart} to ${entryEnd} of ${filtered.length} entries`
+            : "No entries"}
+        </p>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={safePage === 1}
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            ←
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+            <button
+              key={n}
+              onClick={() => setPage(n)}
+              className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                n === safePage
+                  ? "bg-blue-600 text-white border border-blue-600"
+                  : "border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+              }`}
+            >
+              {n}
+            </button>
+          ))}
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={safePage === totalPages}
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            →
+          </button>
+        </div>
       </div>
     </div>
   );

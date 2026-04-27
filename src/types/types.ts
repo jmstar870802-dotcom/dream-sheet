@@ -15,5 +15,13 @@ export interface SheetData{
   createdAt: Date;  
   updatedAt: Date;
   visualTranspose : number;
+}
 
+export interface Meta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
 }
