@@ -67,7 +67,7 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
       // wrapper의 실제 top 위치로 버튼바 높이를 자동 반영
       const wrapperTop = wrapperRef.current.getBoundingClientRect().top;
       const availableHeight = window.innerHeight - wrapperTop;
-      const availableWidth = window.innerWidth;
+      const availableWidth = window.innerWidth-25;
 
       if (!naturalHeight || !naturalWidth || !availableHeight) return;
 
@@ -110,7 +110,8 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
         format: {
           stafftopmargin : "10",
           wordsfont: "15",
-          gchordfont: "bold 15",
+          gchordfont: "bold 16",
+          vocalfont : "16"
         }
       });
 
