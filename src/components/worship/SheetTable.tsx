@@ -146,7 +146,7 @@ const pageNumbers = getPaginationRange(meta.page, meta.totalPages);
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[480px]">
+        <table className="w-full">
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {data.length === 0 ? (
               <tr>
@@ -177,8 +177,8 @@ const pageNumbers = getPaginationRange(meta.page, meta.totalPages);
                       </div>
                     </div>
                   </td>
-                  <td className="px-2 py-2 text-xs text-gray-500 dark:text-gray-400 max-w-0">
-                    <Link href={`/worship-search/detail/${row.id}`}>
+                  <td className="px-2 py-2 text-xs text-gray-500 dark:text-gray-400 max-w-5">
+                    <Link href={`/worship-search/detail/${row.id}`} className="flex justify-center items-center">
                       <Play />
                     </Link>
                   </td>

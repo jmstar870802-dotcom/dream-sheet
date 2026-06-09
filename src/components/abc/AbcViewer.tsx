@@ -7,7 +7,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import Button from '../ui/button/Button';
 import { ArrowBigUpDash, ArrowBigDownDash, IterationCcw, ArrowBigLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 const AbcViewer = ({notationData} : {notationData : SheetData}) => {
 
@@ -138,37 +137,39 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
                 <span className='hidden sm:inline'>Back</span>
             </Button>
         </div>
-        <div className='flex gap-1'>
-          <div>
-            <Button size="sm" variant="primary" className="mx-auto h-8 sm:h-10 sm:w-30" buttonType="button" onClick={fnKeyDown}>
-                <ArrowBigDownDash className='size-4 sm:size-5'/>
-                <span className='hidden sm:inline'>키 다운</span>
-            </Button>
+        {formData.notation?.length ? (
+          <div className='flex gap-1'>
+            <div>
+              <Button size="sm" variant="primary" className="mx-auto h-8 sm:h-10 sm:w-30" buttonType="button" onClick={fnKeyDown}>
+                  <ArrowBigDownDash className='size-4 sm:size-5'/>
+                  <span className='hidden sm:inline'>키 다운</span>
+              </Button>
+            </div>
+            <div>
+              <Button size="sm" variant="primary" className="mx-auto h-8 sm:h-10 sm:w-25" buttonType="button" onClick={fnKeySet}>
+                  <IterationCcw className='size-4 sm:size-5'/>
+                  <span className='hidden sm:inline'>원키</span>
+              </Button>
+            </div>
+            <div>
+              <Button size="sm" variant="primary" className="mx-auto h-8 sm:h-10 sm:w-25" buttonType="button" onClick={fnKeyUp}>
+                <ArrowBigUpDash className='size-4 sm:size-5'/>
+                <span className='hidden sm:inline'>키업</span>
+              </Button>
+            </div>
           </div>
-          <div>
-            <Button size="sm" variant="primary" className="mx-auto h-8 sm:h-10 sm:w-25" buttonType="button" onClick={fnKeySet}>
-                <IterationCcw className='size-4 sm:size-5'/>
-                <span className='hidden sm:inline'>원키</span>
-            </Button>
-          </div>
-          <div>
-            <Button size="sm" variant="primary" className="mx-auto h-8 sm:h-10 sm:w-25" buttonType="button" onClick={fnKeyUp}>
-              <ArrowBigUpDash className='size-4 sm:size-5'/>
-              <span className='hidden sm:inline'>키업</span>
-            </Button>
-          </div>
-        </div>
+        ) : null}
       </div>
 
       <div ref={wrapperRef} className='relative overflow-hidden'>
         {formData.notation?.length ? (
           <div ref={paperRef} />
         ) : formData.img_url ? (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={formData.img_url}
             alt={formData.title}
-            fill
-            className='object-contain'
+            className='w-full h-full object-contain object-left'
           />
         ) : (
           <p className='flex items-center justify-center h-full text-gray-400'>악보 데이터가 없습니다.</p>
