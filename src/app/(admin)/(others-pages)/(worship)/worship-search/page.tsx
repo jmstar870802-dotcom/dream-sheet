@@ -53,7 +53,7 @@ export default async function WorshipPage({
   
   return (
     <div>
-      <PageBreadcrumb pageTitle="찬양등록" />
+      <PageBreadcrumb pageTitle="찬양조회" />
       <div className="mx-auto w-full">
          <SheetTable data={data} meta={meta} />
       </div>

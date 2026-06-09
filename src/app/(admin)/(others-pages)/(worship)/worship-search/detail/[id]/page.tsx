@@ -1,21 +1,21 @@
 import AbcViewer from "@/components/abc/AbcViewer";
 import { SheetData } from "@/types/types";
-import ScaledContent from "@/components/common/ScaledContent"; // 추가
 
 export default async function worship({ params }: { params: Promise<{ id: number }> }) {
 
   const { id } = await params;
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/sheet/${id}`,
-    { cache: "force-cache" }
+      `${process.env.NEXT_PUBLIC_API_SERVER_URL}/sheet/${id}`,
+      { cache: "force-cache" }
   );
 
   if (!response.ok) {
-    throw new Error(`서버 응답 에러: ${response.status}`);
+        throw new Error(`서버 응답 에러: ${response.status}`);
   }
 
   const worshipData: SheetData = await response.json();
+      
   return (
     <div>
       <div className="w-full overflow-x-hidden

@@ -148,7 +148,7 @@ const AbcEditor = ({notationData} : {notationData : SheetData}) => {
                     rows={20}
                     value={formData?.notation}
                     onChange={handleChange}
-                    className='!text-black !text-base [word-spacing:0.3rem]'
+                    
             />
           </div>   
         </form>  
@@ -161,7 +161,7 @@ const AbcEditor = ({notationData} : {notationData : SheetData}) => {
       <div className="space-y-6 "
         id="paper" 
         ref={paperRef} 
-        style={{ background: '#fff', padding: '10px', borderRadius: '8px' }}
+        style={{ padding: '10px', borderRadius: '8px' }}
       />
     </div>
   );
