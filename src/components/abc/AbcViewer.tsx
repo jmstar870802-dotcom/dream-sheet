@@ -61,14 +61,18 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
     requestAnimationFrame(() => {
       if (!paperRef.current || !wrapperRef.current) return;
 
-      const naturalHeight = paperRef.current.getBoundingClientRect().height;
+      const rect = paperRef.current.getBoundingClientRect();
+      const naturalHeight = rect.height;
+      const naturalWidth = rect.width;
       // wrapper의 실제 top 위치로 버튼바 높이를 자동 반영
       const wrapperTop = wrapperRef.current.getBoundingClientRect().top;
       const availableHeight = window.innerHeight - wrapperTop;
+      const availableWidth = window.innerWidth;
 
-      if (!naturalHeight || !availableHeight) return;
+      if (!naturalHeight || !naturalWidth || !availableHeight) return;
 
-      const scale = availableHeight / naturalHeight;
+      // 높이·너비 중 작은 비율로 스케일해서 양쪽 모두 잘리지 않도록
+      const scale = Math.min(availableHeight / naturalHeight, availableWidth / naturalWidth);
 
       paperRef.current.style.transform = `scale(${scale})`;
       paperRef.current.style.transformOrigin = 'top left';
@@ -169,7 +173,7 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
           <img
             src={formData.img_url}
             alt={formData.title}
-            className='w-full h-full object-contain object-left'
+            className='w-full h-full object-contain object-left-top'
           />
         ) : (
           <p className='flex items-center justify-center h-full text-gray-400'>악보 데이터가 없습니다.</p>
