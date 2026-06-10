@@ -13,9 +13,8 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title:
-    "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Home for TailAdmin Dashboard Template",
+  title: "꿈의교회 찬양 관리",
+  description: "잘쓰면 좋고 안쓰면 나만 쓰고",
 };
 
 export default async function Ecommerce() {

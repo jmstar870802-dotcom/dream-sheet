@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import 'abcjs/abcjs-audio.css';
 import { SheetData } from '@/types/types';
 import 'react-toastify/dist/ReactToastify.css';
@@ -42,6 +42,42 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
     }
   };
 
+  // 화면보다 높이가 큰 경우에만 width를 역산해서 한 화면에 맞게 축소
+  const fitToScreen = useCallback(() => {
+    if (!paperRef.current) return;
+
+    // width 초기화 후 자연 크기 측정
+    paperRef.current.style.width = '';
+
+    requestAnimationFrame(() => {
+      if (!paperRef.current) return;
+
+      const svgList = paperRef.current.querySelectorAll('svg');
+      if (svgList.length === 0) return;
+
+      let totalNaturalHeight = 0;
+      let maxNaturalWidth = 0;
+      svgList.forEach((svg) => {
+        const vb = svg.viewBox.baseVal;
+        totalNaturalHeight += vb.height;
+        maxNaturalWidth = Math.max(maxNaturalWidth, vb.width);
+      });
+
+      if (!totalNaturalHeight || !maxNaturalWidth) return;
+
+      // paperRef의 top 위치로 사용 가능한 높이 산출
+      const paperTop = paperRef.current.getBoundingClientRect().top;
+      const availableHeight = window.innerHeight - paperTop;
+
+      if (totalNaturalHeight > availableHeight) {
+        // 화면보다 크면 높이에 맞도록 width 축소
+        const scale = availableHeight / totalNaturalHeight;
+        paperRef.current.style.width = `${maxNaturalWidth * scale}px`;
+      }
+      // 화면에 맞으면 width 그대로 (초기화된 상태 유지)
+    });
+  }, []);
+
   useEffect(() => {
     if (!paperRef.current) return;
     if (!formData.notation?.length) return;
@@ -58,8 +94,15 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
           vocalfont : "16"
         }
       });
+
+      requestAnimationFrame(fitToScreen);
     });
-  }, [formData]);
+  }, [formData, fitToScreen]);
+
+  useEffect(() => {
+    window.addEventListener('resize', fitToScreen);
+    return () => window.removeEventListener('resize', fitToScreen);
+  }, [fitToScreen]);
 
   return (
     <div className='flex flex-col'>
@@ -95,7 +138,7 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
       </div>
 
       {formData.notation?.length ? (
-        <div ref={paperRef} />
+        <div ref={paperRef} style={{paddingBottom : '87%'}} />
       ) : formData.img_url ? (
         <div className='flex-1 min-h-0'>
           {/* eslint-disable-next-line @next/next/no-img-element */}
