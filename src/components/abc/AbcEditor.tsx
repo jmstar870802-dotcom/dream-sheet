@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useActionState } from 'react';
+import React, { useEffect, useRef, useState, useActionState, useTransition } from 'react';
 import TextArea from '../form/input/TextArea';
 import Button from "@/components/ui/button/Button";
 import 'abcjs/abcjs-audio.css';
@@ -8,17 +8,36 @@ import Label from "@/components/form/Label";
 import Input from "@/components/form/input/InputField";
 import { createSheetAction } from '@/action/createSheet.action';
 import { updateSheetAction } from '@/action/updateSheet.action';
+import { deleteSheetAction } from '@/action/deleteSheet.action';
 import { SheetData } from '@/types/types';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useRouter } from 'next/navigation';
+import { ArrowBigLeft } from 'lucide-react';
 
 const AbcEditor = ({notationData} : {notationData : SheetData}) => {
+
+  const router = useRouter();
+  const [isDeleting, startDeleteTransition] = useTransition();
 
   const formRef = useRef<HTMLFormElement>(null);
   const editorRef = useRef<any>(null);
   const paperRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLDivElement>(null);
   const isEditMode = !!notationData?.id;
+
+  const handleDelete = () => {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    startDeleteTransition(async () => {
+      const result = await deleteSheetAction(formData.id);
+      if (result.status) {
+        toast.success('삭제되었습니다.', { position: 'bottom-center', autoClose: 1000 });
+        setTimeout(() => router.push('/worship-update'), 1100);
+      } else {
+        alert(result.error);
+      }
+    });
+  };
 
   const [formData, setFormData] = useState<SheetData>(notationData);
 
@@ -95,20 +114,32 @@ const AbcEditor = ({notationData} : {notationData : SheetData}) => {
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-2" style={{ padding: '10px' }}>
       <div className="space-y-3">
+        {/* 상단 버튼 바 */}
+        <div className="flex items-center justify-between">
+          <Button size="sm" variant="primary" className="flex items-center gap-1 h-9" buttonType="button" onClick={() => router.back()}>
+            <ArrowBigLeft className="size-4" />
+            <span>뒤로가기</span>
+          </Button>
+          <div className="flex gap-1">
+            <Button size="sm" variant="primary" className="w-16 h-9" buttonType="button" onClick={() => formRef.current?.requestSubmit()}>
+              {isPending ? "..." : "저장"}
+            </Button>
+            {isEditMode && (
+              <Button size="sm" variant="outline" className="w-16 h-9 text-red-600 border-red-400 hover:bg-red-50" buttonType="button" onClick={handleDelete}>
+                {isDeleting ? "..." : "삭제"}
+              </Button>
+            )}
+          </div>
+        </div>
+        <ToastContainer style={{ width: "600px" }} />
+
         <form ref={formRef} action={formAction}>
-          {/* 수정 모드일 때 id를 hidden으로 전달 */}
           {isEditMode && (
             <input type="hidden" name="id" value={formData?.id} />
           )}
           <div>
             <Label>제목</Label>
-            <div className="grid grid-cols-[1fr_80px] gap-2">
-              <Input type="text" className="w-150" id="title" name="title" onChange={handleChange} defaultValue={formData?.title} />
-              <Button size="sm" variant="primary" className="w-20" buttonType="submit">
-                {isPending ? "..." : "저장"}
-              </Button>
-              <ToastContainer style={{ width: "600px" }} />
-            </div>
+            <Input type="text" id="title" name="title" onChange={handleChange} defaultValue={formData?.title} />
           </div>
           <div>
             <Label>첫 소절</Label>
