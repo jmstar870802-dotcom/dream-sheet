@@ -42,7 +42,7 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
     }
   };
 
-  // 화면보다 높이가 큰 경우에만 width를 역산해서 한 화면에 맞게 축소
+  // 화면보다 높이가 큰 경우에만 width를 줄여서 한 화면에 맞게 축소
   const fitToScreen = useCallback(() => {
     if (!paperRef.current) return;
 
@@ -55,24 +55,24 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
       const svgList = paperRef.current.querySelectorAll('svg');
       if (svgList.length === 0) return;
 
-      let totalNaturalHeight = 0;
-      let maxNaturalWidth = 0;
+      // 실제 렌더링된 픽셀 높이를 SVG 단위로 합산
+      let totalRenderedHeight = 0;
       svgList.forEach((svg) => {
-        const vb = svg.viewBox.baseVal;
-        totalNaturalHeight += vb.height;
-        maxNaturalWidth = Math.max(maxNaturalWidth, vb.width);
+        totalRenderedHeight += svg.getBoundingClientRect().height;
       });
 
-      if (!totalNaturalHeight || !maxNaturalWidth) return;
+      if (!totalRenderedHeight) return;
 
-      // paperRef의 top 위치로 사용 가능한 높이 산출
+      // 모바일 브라우저 주소창/하단 바를 제외한 실제 가용 높이
+      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
       const paperTop = paperRef.current.getBoundingClientRect().top;
-      const availableHeight = window.innerHeight - paperTop;
+      const availableHeight = viewportHeight - paperTop;
 
-      if (totalNaturalHeight > availableHeight) {
-        // 화면보다 크면 높이에 맞도록 width 축소
-        const scale = availableHeight / totalNaturalHeight;
-        paperRef.current.style.width = `${maxNaturalWidth * scale}px`;
+      if (totalRenderedHeight > availableHeight) {
+        // 현재 width에 scale을 곱해서 높이가 availableHeight에 맞도록 축소
+        const currentWidth = paperRef.current.getBoundingClientRect().width;
+        const scale = availableHeight / totalRenderedHeight;
+        paperRef.current.style.width = `${currentWidth * scale}px`;
       }
       // 화면에 맞으면 width 그대로 (초기화된 상태 유지)
     });
@@ -101,7 +101,11 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
 
   useEffect(() => {
     window.addEventListener('resize', fitToScreen);
-    return () => window.removeEventListener('resize', fitToScreen);
+    window.visualViewport?.addEventListener('resize', fitToScreen);
+    return () => {
+      window.removeEventListener('resize', fitToScreen);
+      window.visualViewport?.removeEventListener('resize', fitToScreen);
+    };
   }, [fitToScreen]);
 
   return (
@@ -138,7 +142,7 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
       </div>
 
       {formData.notation?.length ? (
-        <div ref={paperRef} style={{paddingBottom : '87%'}} />
+        <div ref={paperRef} />
       ) : formData.img_url ? (
         <div className='flex-1 min-h-0'>
           {/* eslint-disable-next-line @next/next/no-img-element */}
