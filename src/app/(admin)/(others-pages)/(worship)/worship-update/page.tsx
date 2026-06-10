@@ -51,7 +51,7 @@ export default async function WorshipUpdatePage({
 
   return (
     <div>
-      <PageBreadcrumb pageTitle="찬양수정" />
+      <PageBreadcrumb pageTitle="찬양관리" />
       <div className="mx-auto w-full">
         <SheetTableUpdate data={data} meta={meta} />
       </div>

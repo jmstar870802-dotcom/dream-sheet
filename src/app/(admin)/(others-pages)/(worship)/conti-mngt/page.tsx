@@ -1,31 +1,58 @@
+// 콘티 관리 목록 페이지 (서버 컴포넌트)
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import { Metadata } from "next";
-import React from "react";
-import WorshipList from "@/components/worship/worship_list" 
-import ContiMngtList from "@/components/worship/conti_mngt_list" 
+import ContiTableUpdate from "@/components/worship/ContiTableUpdate";
+import { ContiData, Meta } from "@/types/types";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+interface SearchParams {
+  contiNote?: string;
+  page?: string;
+  limit?: string;
+  sortKey?: string;
+  sortDir?: string;
+}
 
-import Badge from "@/components/ui/badge/Badge";
-import Image from "next/image";
+interface PaginatedResponse {
+  data: ContiData[];
+  meta: Meta;
+}
 
+async function getContiData(searchParams: SearchParams): Promise<PaginatedResponse> {
+  const query = new URLSearchParams({
+    contiNote: searchParams.contiNote ?? "",
+    page:      searchParams.page      ?? "1",
+    limit:     searchParams.limit     ?? "10",
+    sortKey:   searchParams.sortKey   ?? "id",
+    sortDir:   searchParams.sortDir   ?? "asc",
+  });
 
-export const metadata: Metadata = {
-  title: "Next.js Blank Page | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Blank Page TailAdmin Dashboard Template",
-};
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/conti?${query.toString()}`,
+    {
+      next: { tags: ["conti-list"] },
+      cache: "no-store",
+    }
+  );
 
-export default function BlankPage() {
+  if (!response.ok) {
+    throw new Error(`서버 응답 에러: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export default async function ContiMngtPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = await searchParams;
+  const { data, meta } = await getContiData(params);
+
   return (
     <div>
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-
+      <PageBreadcrumb pageTitle="콘티관리" />
+      <div className="mx-auto w-full">
+        <ContiTableUpdate data={data} meta={meta} />
       </div>
     </div>
   );

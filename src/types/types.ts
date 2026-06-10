@@ -17,6 +17,20 @@ export interface SheetData{
   visualTranspose : number;
 }
 
+export interface ContiData{
+  id : number;
+  contiDate : string;
+  contiNote : string;
+  contiNotation: string;
+  conti_img_url : string;
+  SheetId : number;
+  createdAt: Date;  
+  updatedAt: Date;
+  visualTranspose : number;
+  contiLeader : string;
+}
+
+
 export interface Meta {
   total: number;
   page: number;
