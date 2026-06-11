@@ -15,7 +15,7 @@ export async function deleteSheetAction(id: number) {
       throw new Error(result.message ?? `삭제 실패 (${response.status})`);
     }
 
-    revalidateTag("worship-list");
+    revalidateTag("worship-list",'default');
 
     return { status: true, error: "" };
 
