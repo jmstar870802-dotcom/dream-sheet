@@ -193,7 +193,7 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
                     {row.contiLeader}
                   </td>
                   <td className="px-2 py-2">
-                    <Link href={`/conti-mngt/detail/${row.id}`} className="flex justify-center items-center">
+                    <Link href={`/conti-serach/detail/${row.id}`} className="flex justify-center items-center">
                       <Play className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     </Link>
                   </td>

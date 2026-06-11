@@ -1,26 +1,58 @@
+// 콘티 조회 목록 페이지 (서버 컴포넌트)
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import { Metadata } from "next";
-import React from "react";
+import ContiTableSearch from "@/components/worship/ContiTableSearch";
+import { ContiData, Meta } from "@/types/types";
 
-export const metadata: Metadata = {
-  title: "Next.js Blank Page | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Blank Page TailAdmin Dashboard Template",
-};
+interface SearchParams {
+  contiNote?: string;
+  page?: string;
+  limit?: string;
+  sortKey?: string;
+  sortDir?: string;
+}
 
-export default function BlankPage() {
+interface PaginatedResponse {
+  data: ContiData[];
+  meta: Meta;
+}
+
+async function getContiData(searchParams: SearchParams): Promise<PaginatedResponse> {
+  const query = new URLSearchParams({
+    contiNote: searchParams.contiNote ?? "",
+    page:      searchParams.page      ?? "1",
+    limit:     searchParams.limit     ?? "10",
+    sortKey:   searchParams.sortKey   ?? "id",
+    sortDir:   searchParams.sortDir   ?? "asc",
+  });
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_SERVER_URL}/conti?${query.toString()}`,
+    {
+      next: { tags: ["conti-list"] },
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`서버 응답 에러: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export default async function ContiSearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = await searchParams;
+  const { data, meta } = await getContiData(params);
+
   return (
     <div>
       <PageBreadcrumb pageTitle="콘티조회" />
-      <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
-        <div className="mx-auto w-full max-w-[630px] text-center">
-          <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
-            Card Title Here
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">
-            Start putting content on grids or panels, you can also use different
-            combinations of grids.Please check out the dashboard and other pages
-          </p>
-        </div>
+      <div className="mx-auto w-full">
+        <ContiTableSearch data={data} meta={meta} showNewButton={false} />
       </div>
     </div>
   );

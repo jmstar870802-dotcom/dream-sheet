@@ -8,30 +8,40 @@ import Button from '../ui/button/Button';
 import { ArrowBigUpDash, ArrowBigDownDash, IterationCcw, ArrowBigLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-const AbcViewer = ({notationData} : {notationData : SheetData}) => {
+const AbcViewer = ({
+  notationData,
+  showBack = true,
+  showKeyControls = true,
+  visualTranspose: externalTranspose,
+} : {
+  notationData: SheetData;
+  showBack?: boolean;
+  showKeyControls?: boolean;
+  visualTranspose?: number;
+}) => {
 
   const router = useRouter();
 
   const paperRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
   const [formData, setFormData] = useState<SheetData>(notationData);
-  const [visualTranspose, setVisualTranspose] = useState<number>(0)
+  const [internalTranspose, setInternalTranspose] = useState<number>(0);
+
+  const visualTranspose = externalTranspose !== undefined ? externalTranspose : internalTranspose;
 
   const fnKeyUp = () => {
-    setVisualTranspose(visualTranspose+1);
-    const updatedData = {...notationData, visualTranspose : visualTranspose}
-    setFormData(updatedData)
+    setInternalTranspose(prev => prev + 1);
+    setFormData({...notationData});
   };
 
   const fnKeyDown = () => {
-    setVisualTranspose(visualTranspose-1);
-    const updatedData = {...notationData, visualTranspose : visualTranspose}
-    setFormData(updatedData)
+    setInternalTranspose(prev => prev - 1);
+    setFormData({...notationData});
   };
 
   const fnKeySet = () => {
-    setVisualTranspose(0);
-    const updatedData = {...notationData, visualTranspose : visualTranspose}
-    setFormData(updatedData)
+    setInternalTranspose(0);
+    setFormData({...notationData});
   };
 
   const handleBack = () => {
@@ -42,39 +52,55 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
     }
   };
 
-  // 화면보다 높이가 큰 경우에만 width를 줄여서 한 화면에 맞게 축소
+  const fitImageToScreen = useCallback(() => {
+    if (!imgRef.current) return;
+    imgRef.current.style.maxHeight = '';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!imgRef.current) return;
+        const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+        const top = imgRef.current.getBoundingClientRect().top;
+        const available = viewportHeight - top;
+        if (available > 0) {
+          imgRef.current.style.maxHeight = `${available}px`;
+        }
+      });
+    });
+  }, []);
+
+  // 악보 높이가 가용 화면보다 크면 transform scale로 축소
   const fitToScreen = useCallback(() => {
     if (!paperRef.current) return;
 
-    // width 초기화 후 자연 크기 측정
-    paperRef.current.style.width = '';
+    paperRef.current.style.transform = '';
+    paperRef.current.style.marginBottom = '';
 
+    // double rAF: 첫 번째는 reset 반영 대기, 두 번째는 측정
     requestAnimationFrame(() => {
-      if (!paperRef.current) return;
+      requestAnimationFrame(() => {
+        if (!paperRef.current) return;
 
-      const svgList = paperRef.current.querySelectorAll('svg');
-      if (svgList.length === 0) return;
+        const svgList = paperRef.current.querySelectorAll('svg');
+        if (svgList.length === 0) return;
 
-      // 실제 렌더링된 픽셀 높이를 SVG 단위로 합산
-      let totalRenderedHeight = 0;
-      svgList.forEach((svg) => {
-        totalRenderedHeight += svg.getBoundingClientRect().height;
+        let totalHeight = 0;
+        svgList.forEach((svg) => {
+          totalHeight += svg.getBoundingClientRect().height;
+        });
+        if (!totalHeight) return;
+
+        const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+        const top = paperRef.current.getBoundingClientRect().top;
+        const available = viewportHeight - top;
+
+        if (totalHeight > available && available > 0) {
+          const scale = available / totalHeight;
+          paperRef.current.style.transformOrigin = 'top left';
+          paperRef.current.style.transform = `scale(${scale})`;
+          // transform은 레이아웃에 영향 없으므로 marginBottom으로 여백 상쇄
+          paperRef.current.style.marginBottom = `-${totalHeight * (1 - scale)}px`;
+        }
       });
-
-      if (!totalRenderedHeight) return;
-
-      // 모바일 브라우저 주소창/하단 바를 제외한 실제 가용 높이
-      const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-      const paperTop = paperRef.current.getBoundingClientRect().top;
-      const availableHeight = viewportHeight - paperTop;
-
-      if (totalRenderedHeight > availableHeight) {
-        // 현재 width에 scale을 곱해서 높이가 availableHeight에 맞도록 축소
-        const currentWidth = paperRef.current.getBoundingClientRect().width;
-        const scale = availableHeight / totalRenderedHeight;
-        paperRef.current.style.width = `${currentWidth * scale}px`;
-      }
-      // 화면에 맞으면 width 그대로 (초기화된 상태 유지)
     });
   }, []);
 
@@ -85,19 +111,19 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
     import('abcjs').then((abcjs) => {
       abcjs.renderAbc(paperRef.current!, formData.notation, {
         responsive: 'resize',
-        visualTranspose : visualTranspose,
+        visualTranspose: visualTranspose,
         add_classes: true,
         format: {
-          stafftopmargin : "10",
+          stafftopmargin: "10",
           wordsfont: "15",
           gchordfont: "bold 16",
-          vocalfont : "16"
+          vocalfont: "16"
         }
       });
 
       requestAnimationFrame(fitToScreen);
     });
-  }, [formData, fitToScreen]);
+  }, [formData, fitToScreen, visualTranspose]);
 
   useEffect(() => {
     window.addEventListener('resize', fitToScreen);
@@ -108,16 +134,29 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
     };
   }, [fitToScreen]);
 
+  useEffect(() => {
+    if (!formData.img_url) return;
+    fitImageToScreen();
+    window.addEventListener('resize', fitImageToScreen);
+    window.visualViewport?.addEventListener('resize', fitImageToScreen);
+    return () => {
+      window.removeEventListener('resize', fitImageToScreen);
+      window.visualViewport?.removeEventListener('resize', fitImageToScreen);
+    };
+  }, [formData.img_url, fitImageToScreen]);
+
   return (
     <div className='flex flex-col'>
       <div className='flex flex-row gap-2 justify-between p-2'>
-        <div>
-          <Button size="sm" variant="primary" className="p-1 mx-auto h-8 sm:h-10" buttonType="button" onClick={handleBack}>
-            <ArrowBigLeft className='size-4 sm:size-5'/>
-            <span className='hidden sm:inline'>Back</span>
-          </Button>
-        </div>
-        {formData.notation?.length ? (
+        {showBack && (
+          <div>
+            <Button size="sm" variant="primary" className="p-1 mx-auto h-8 sm:h-10" buttonType="button" onClick={handleBack}>
+              <ArrowBigLeft className='size-4 sm:size-5'/>
+              <span className='hidden sm:inline'>Back</span>
+            </Button>
+          </div>
+        )}
+        {showKeyControls && formData.notation?.length ? (
           <div className='flex gap-1'>
             <div>
               <Button size="sm" variant="primary" className="mx-auto h-8 sm:h-10 sm:w-30" buttonType="button" onClick={fnKeyDown}>
@@ -144,14 +183,13 @@ const AbcViewer = ({notationData} : {notationData : SheetData}) => {
       {formData.notation?.length ? (
         <div ref={paperRef} />
       ) : formData.img_url ? (
-        <div className='flex-1 min-h-0'>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={formData.img_url}
-            alt={formData.title}
-            className='w-full h-full object-contain object-left-top'
-          />
-        </div>
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          ref={imgRef}
+          src={formData.img_url}
+          alt={formData.title}
+          style={{ width: 'auto', maxWidth: '100%', height: 'auto', objectFit: 'contain', objectPosition: 'left top', display: 'block' }}
+        />
       ) : (
         <p className='flex items-center justify-center text-gray-400 p-10'>악보 데이터가 없습니다.</p>
       )}

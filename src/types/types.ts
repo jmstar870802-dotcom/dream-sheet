@@ -21,14 +21,24 @@ export interface ContiData{
   id : number;
   contiDate : string;
   contiNote : string;
+  contiLeader: string;
+  createdAt: Date;
+  updatedAt: Date;
+  contiDtl?: ContiDtlData[];
+}
+
+export interface ContiDtlData{
+  id : number;
   contiNotation: string;
   conti_img_url : string;
+  ContiId : number;
   SheetId : number;
+  contiOrder : number;
   createdAt: Date;  
   updatedAt: Date;
   visualTranspose : number;
-  contiLeader : string;
 }
+
 
 
 export interface Meta {
