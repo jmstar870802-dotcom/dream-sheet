@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import 'abcjs/abcjs-audio.css';
 import { SheetData } from '@/types/types';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,13 +11,9 @@ import { useRouter } from 'next/navigation';
 const AbcViewer = ({
   notationData,
   showBack = true,
-  showKeyControls = true,
-  visualTranspose: externalTranspose,
 } : {
   notationData: SheetData;
   showBack?: boolean;
-  showKeyControls?: boolean;
-  visualTranspose?: number;
 }) => {
 
   const router = useRouter();
@@ -25,22 +21,20 @@ const AbcViewer = ({
   const paperRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const [formData, setFormData] = useState<SheetData>(notationData);
-  const [internalTranspose, setInternalTranspose] = useState<number>(0);
-
-  const visualTranspose = externalTranspose !== undefined ? externalTranspose : internalTranspose;
+  const [visualTranspose, setVisualTranspose] = useState<number>(0);
 
   const fnKeyUp = () => {
-    setInternalTranspose(prev => prev + 1);
+    setVisualTranspose(prev => prev + 1);
     setFormData({...notationData});
   };
 
   const fnKeyDown = () => {
-    setInternalTranspose(prev => prev - 1);
+    setVisualTranspose(prev => prev - 1);
     setFormData({...notationData});
   };
 
   const fnKeySet = () => {
-    setInternalTranspose(0);
+    setVisualTranspose(0);
     setFormData({...notationData});
   };
 
@@ -75,7 +69,6 @@ const AbcViewer = ({
     paperRef.current.style.transform = '';
     paperRef.current.style.marginBottom = '';
 
-    // double rAF: 첫 번째는 reset 반영 대기, 두 번째는 측정
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         if (!paperRef.current) return;
@@ -97,7 +90,6 @@ const AbcViewer = ({
           const scale = available / totalHeight;
           paperRef.current.style.transformOrigin = 'top left';
           paperRef.current.style.transform = `scale(${scale})`;
-          // transform은 레이아웃에 영향 없으므로 marginBottom으로 여백 상쇄
           paperRef.current.style.marginBottom = `-${totalHeight * (1 - scale)}px`;
         }
       });
@@ -150,28 +142,28 @@ const AbcViewer = ({
       <div className='flex flex-row gap-2 justify-between p-2'>
         {showBack && (
           <div>
-            <Button size="sm" variant="primary" className="p-1 mx-auto h-8 sm:h-10" buttonType="button" onClick={handleBack}>
+            <Button size="sm" variant="primary" className="p-1 mx-auto h-7 sm:h-8" buttonType="button" onClick={handleBack}>
               <ArrowBigLeft className='size-4 sm:size-5'/>
               <span className='hidden sm:inline'>Back</span>
             </Button>
           </div>
         )}
-        {showKeyControls && formData.notation?.length ? (
+        {formData.notation?.length ? (
           <div className='flex gap-1'>
             <div>
-              <Button size="sm" variant="primary" className="mx-auto h-8 sm:h-10 sm:w-30" buttonType="button" onClick={fnKeyDown}>
+              <Button size="sm" variant="primary" className="mx-auto h-7 sm:h-8 sm:w-26" buttonType="button" onClick={fnKeyDown}>
                 <ArrowBigDownDash className='size-4 sm:size-5'/>
                 <span className='hidden sm:inline'>키 다운</span>
               </Button>
             </div>
             <div>
-              <Button size="sm" variant="primary" className="mx-auto h-8 sm:h-10 sm:w-25" buttonType="button" onClick={fnKeySet}>
+              <Button size="sm" variant="primary" className="mx-auto h-7 sm:h-8 sm:w-23" buttonType="button" onClick={fnKeySet}>
                 <IterationCcw className='size-4 sm:size-5'/>
                 <span className='hidden sm:inline'>원키</span>
               </Button>
             </div>
             <div>
-              <Button size="sm" variant="primary" className="mx-auto h-8 sm:h-10 sm:w-25" buttonType="button" onClick={fnKeyUp}>
+              <Button size="sm" variant="primary" className="mx-auto h-7 sm:h-8 sm:w-23" buttonType="button" onClick={fnKeyUp}>
                 <ArrowBigUpDash className='size-4 sm:size-5'/>
                 <span className='hidden sm:inline'>키업</span>
               </Button>
