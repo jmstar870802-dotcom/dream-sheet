@@ -1,8 +1,8 @@
 // 콘티 조회 뷰어 - 곡 번호 버튼 선택 후 AbcViewer를 표시하는 클라이언트 컴포넌트
 "use client";
 
-import { useState } from "react";
-import { RotateCcw, ArrowBigLeft, ArrowBigDownDash, IterationCcw, ArrowBigUpDash } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { RotateCcw, ArrowBigLeft, ArrowBigDownDash, IterationCcw, ArrowBigUpDash, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import AbcViewer from "@/components/abc/AbcViewer";
 import { SheetData } from "@/types/types";
@@ -16,6 +16,19 @@ export default function ContiViewer({ songs }: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [viewerKey, setViewerKey] = useState(0);
   const [visualTranspose, setVisualTranspose] = useState(0);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    function handleOutsideClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [dropdownOpen]);
 
   if (songs.length === 0) {
     return (
@@ -31,14 +44,15 @@ export default function ContiViewer({ songs }: Props) {
     setSelectedIndex(i);
     setViewerKey((k) => k + 1);
     setVisualTranspose(0);
+    setDropdownOpen(false);
   }
 
   return (
     <div className="flex flex-col gap-3">
 
-      {/* Back + 번호 버튼 + 키 버튼 + 새로고침 */}
+      {/* Back + 곡 선택 드롭다운 + 키 버튼 + 새로고침 */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1 flex-wrap">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => router.back()}
             className="w-10 h-10 rounded-lg bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-colors"
@@ -46,20 +60,40 @@ export default function ContiViewer({ songs }: Props) {
           >
             <ArrowBigLeft className="w-5 h-5" />
           </button>
-          {songs.map((_, i) => (
+
+          {/* 드롭다운 */}
+          <div ref={dropdownRef} className="relative">
             <button
-              key={i}
-              onClick={() => handleSelect(i)}
-              className={`w-10 h-10 rounded-lg text-sm font-bold transition-colors ${
-                i === selectedIndex
-                  ? "bg-teal-700 text-white"
-                  : "bg-teal-500 text-white hover:bg-teal-600"
-              }`}
+              onClick={() => setDropdownOpen((o) => !o)}
+              className="flex items-center gap-1 h-10 px-3 rounded-lg bg-teal-500 hover:bg-teal-600 text-white text-sm font-bold transition-colors"
             >
-              {i + 1}
+              <span>{selectedIndex + 1} / {songs.length}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
             </button>
-          ))}
+            {dropdownOpen && (
+              <ul className="absolute top-full left-0 mt-1 z-50 min-w-[220px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden">
+                {songs.map((song, i) => (
+                  <li key={i}>
+                    <button
+                      onClick={() => handleSelect(i)}
+                      className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 transition-colors ${
+                        i === selectedIndex
+                          ? "bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 font-semibold"
+                          : "text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      }`}
+                    >
+                      <span className="w-5 h-5 rounded-full bg-teal-500 text-white text-xs flex items-center justify-center shrink-0">
+                        {i + 1}
+                      </span>
+                      <span className="truncate">{song.title}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
+
         <div className="flex items-center gap-1">
           {hasNotation && (
             <>
