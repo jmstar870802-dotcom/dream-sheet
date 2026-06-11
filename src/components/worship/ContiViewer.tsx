@@ -184,9 +184,9 @@ export default function ContiViewer({ songs }: Props) {
           />
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2">
+        <div className={`grid grid-cols-2 gap-2 ${splitMode === 4 ? "auto-rows-[44vh]" : ""}`}>
           {displaySongs.map((song, i) => (
-            <div key={`${viewerKey}-${currentGroupStart + i}`} className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div key={`${viewerKey}-${currentGroupStart + i}`} className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden h-full">
               <AbcViewer notationData={song} showBack={false} />
             </div>
           ))}

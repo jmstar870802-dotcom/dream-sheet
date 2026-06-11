@@ -46,8 +46,8 @@ export default async function ContiSearchDetailPage({
 
   return (
     <div>
-      <PageBreadcrumb pageTitle={pageTitle} />
-      <div className="rounded-2xl border border-gray-200 bg-white px-5 py-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      {/* <PageBreadcrumb pageTitle={pageTitle} /> */}
+      <div className="rounded-2xl border border-gray-200 bg-white px-2 py-2 dark:border-gray-800 dark:bg-white/[0.03]">
         <ContiViewer songs={songs} />
       </div>
     </div>
