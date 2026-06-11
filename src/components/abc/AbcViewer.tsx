@@ -84,7 +84,19 @@ const AbcViewer = ({
 
         const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
         const top = paperRef.current.getBoundingClientRect().top;
-        const available = viewportHeight - top;
+
+        // overflow:hidden 조상이 있으면 그 bottom을 경계로 사용 (분할 셀 대응)
+        let clipBottom = viewportHeight;
+        let el: HTMLElement | null = paperRef.current.parentElement;
+        while (el && el !== document.body) {
+          const cs = getComputedStyle(el);
+          if (cs.overflow === 'hidden' || cs.overflowY === 'hidden') {
+            clipBottom = Math.min(clipBottom, el.getBoundingClientRect().bottom);
+            break;
+          }
+          el = el.parentElement;
+        }
+        const available = clipBottom - top;
 
         if (totalHeight > available && available > 0) {
           const scale = available / totalHeight;
