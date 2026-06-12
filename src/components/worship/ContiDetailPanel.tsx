@@ -116,7 +116,7 @@ export default function ContiDetailPanel({ conti, initialSheets, initialMeta, in
     <div className="flex flex-col gap-4">
 
       {/* 헤더: 콘티 메타 입력 + 저장 버튼 */}
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="flex flex-wrap items-end gap-2">
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500 dark:text-gray-400">콘티일자</label>
           <input
@@ -173,7 +173,7 @@ export default function ContiDetailPanel({ conti, initialSheets, initialMeta, in
 
         {/* 왼쪽: 찬양목록 */}
         <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden flex flex-col">
-          <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
+          <div className="px-6 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
             <p className="text-xs text-gray-400 whitespace-nowrap">총 {meta.total.toLocaleString()}곡</p>
             <div className="relative flex-1">
               <svg
@@ -231,7 +231,7 @@ export default function ContiDetailPanel({ conti, initialSheets, initialMeta, in
             </table>
           </div>
 
-          <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
+          <div className="px-6 py-2 border-t border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               {meta.total > 0
                 ? `${(meta.page - 1) * meta.limit + 1} – ${Math.min(meta.page * meta.limit, meta.total)} / 총 ${meta.total.toLocaleString()}곡`
@@ -241,7 +241,7 @@ export default function ContiDetailPanel({ conti, initialSheets, initialMeta, in
               <button
                 onClick={() => handlePage(meta.page - 1)}
                 disabled={!meta.hasPrev}
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-8 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 ‹
               </button>
@@ -252,7 +252,7 @@ export default function ContiDetailPanel({ conti, initialSheets, initialMeta, in
                   <button
                     key={n}
                     onClick={() => handlePage(n as number)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                    className={`w-8 h-7 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                       n === meta.page
                         ? "bg-blue-600 text-white border border-blue-600"
                         : "border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -265,7 +265,7 @@ export default function ContiDetailPanel({ conti, initialSheets, initialMeta, in
               <button
                 onClick={() => handlePage(meta.page + 1)}
                 disabled={!meta.hasNext}
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-8 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 ›
               </button>
@@ -316,21 +316,10 @@ export default function ContiDetailPanel({ conti, initialSheets, initialMeta, in
             </table>
           </div>
 
-          <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
+          <div className="px-6 py-2 border-t border-gray-200 dark:border-gray-700">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               {selectedSongs.length > 0 ? `총 ${selectedSongs.length}곡` : "결과 없음"}
             </p>
-            <div className="flex items-center gap-1">
-              <button disabled className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm disabled:opacity-30 disabled:cursor-not-allowed">
-                ‹
-              </button>
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium bg-blue-600 text-white border border-blue-600">
-                1
-              </button>
-              <button disabled className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm disabled:opacity-30 disabled:cursor-not-allowed">
-                ›
-              </button>
-            </div>
           </div>
         </div>
 

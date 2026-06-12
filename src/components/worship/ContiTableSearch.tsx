@@ -5,7 +5,7 @@ import { ContiData, Meta } from "@/types/types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useCallback } from "react";
 import { getPaginationRange } from "@/utils/pagination";
-import { Play, PlusCircle } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 
 interface ContiTableProps {
@@ -48,7 +48,7 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
 
   const currentSortKey = searchParams.get("sortKey") ?? "id";
   const currentSortDir = searchParams.get("sortDir") ?? "asc";
-  const currentLimit = Number(searchParams.get("limit") ?? 10);
+  const currentLimit = 20;
 
   const updateParams = useCallback(
     (updates: Record<string, string>) => {
@@ -81,31 +81,14 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
     updateParams({ page: String(page) });
   }
 
-  function handleLimit(limit: string) {
-    updateParams({ limit, page: "1" });
-  }
-
   const pageNumbers = getPaginationRange(meta.page, meta.totalPages);
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden">
       {/* Controls */}
-      <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-          <span><p className="text-xs text-gray-400 mt-0.5">총 {meta.total.toLocaleString()}건</p></span>
-          <select
-            value={currentLimit}
-            onChange={(e) => handleLimit(e.target.value)}
-            className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            {[10, 25, 50, 100].map((n) => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </select>
-          <span>entries</span>
-        </div>
+      <div className="px-6 py-2 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-1 min-w-[160px]">
-          <div className="relative flex-1 max-w-xs">
+          <div className="relative max-w-[13rem]">
             <svg
               className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"
               viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
@@ -118,7 +101,7 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
               placeholder="예배 검색..."
               value={searchInput}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-gray-400"
+              className="w-full pl-8 pr-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:border-gray-400"
             />
           </div>
           {showNewButton && (
@@ -165,15 +148,12 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
                   <SortIcon active={currentSortKey === "contiLeader"} dir={currentSortDir} />
                 </span>
               </th>
-              <th className="px-2 py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 w-10">
-                상세
-              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {data.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-400">
+                <td colSpan={3} className="px-6 py-10 text-center text-sm text-gray-400">
                   검색 결과가 없습니다.
                 </td>
               </tr>
@@ -181,7 +161,8 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
               data.map((row) => (
                 <tr
                   key={row.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                  onClick={() => router.push(`/conti-serach/detail/${row.id}`)}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
                 >
                   <td className="px-3 py-2 text-sm text-gray-800 dark:text-gray-100">
                     {row.contiDate}
@@ -192,11 +173,6 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
                   <td className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
                     {row.contiLeader}
                   </td>
-                  <td className="px-2 py-2">
-                    <Link href={`/conti-serach/detail/${row.id}`} className="flex justify-center items-center">
-                      <Play className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    </Link>
-                  </td>
                 </tr>
               ))
             )}
@@ -205,7 +181,7 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
+      <div className="px-6 py-2 border-t border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs text-gray-500 dark:text-gray-400">
           {meta.total > 0
             ? `${(meta.page - 1) * meta.limit + 1} – ${Math.min(meta.page * meta.limit, meta.total)} / 총 ${meta.total.toLocaleString()}건`
@@ -215,7 +191,7 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
           <button
             onClick={() => handlePage(meta.page - 1)}
             disabled={!meta.hasPrev}
-            className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="w-8 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             ‹
           </button>
@@ -226,7 +202,7 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
               <button
                 key={n}
                 onClick={() => handlePage(n as number)}
-                className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                className={`w-8 h-7 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                   n === meta.page
                     ? "bg-blue-600 text-white border border-blue-600"
                     : "border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -239,7 +215,7 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
           <button
             onClick={() => handlePage(meta.page + 1)}
             disabled={!meta.hasNext}
-            className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="w-8 h-7 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             ›
           </button>

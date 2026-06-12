@@ -83,7 +83,7 @@ export default function ContiViewer({ songs }: Props) {
           {/* 뒤로가기 */}
           <button
             onClick={() => router.back()}
-            className="w-10 h-10 rounded-lg bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-sm bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-colors"
             title="뒤로가기"
           >
             <ArrowBigLeft className="w-5 h-5" />
@@ -93,7 +93,7 @@ export default function ContiViewer({ songs }: Props) {
           <div ref={dropdownRef} className="relative">
             <button
               onClick={() => setDropdownOpen((o) => !o)}
-              className="flex items-center gap-1 h-10 px-3 rounded-lg bg-teal-500 hover:bg-teal-600 text-white text-sm font-bold transition-colors"
+              className="flex items-center gap-1 h-8 px-3 rounded-sm bg-teal-500 hover:bg-teal-600 text-white text-sm font-bold transition-colors"
             >
               <span>{currentLabel} / {songs.length}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
@@ -133,7 +133,7 @@ export default function ContiViewer({ songs }: Props) {
           {/* 1분할 */}
           <button
             onClick={() => handleSplitMode(1)}
-            className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+            className={`w-8 h-8 rounded-sm flex items-center justify-center transition-colors ${
               splitMode === 1 ? "bg-indigo-600 text-white" : "bg-indigo-400 hover:bg-indigo-500 text-white"
             }`}
             title="1분할"
@@ -144,7 +144,7 @@ export default function ContiViewer({ songs }: Props) {
           {/* 2분할 */}
           <button
             onClick={() => handleSplitMode(2)}
-            className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+            className={`w-8 h-8 rounded-sm flex items-center justify-center transition-colors ${
               splitMode === 2 ? "bg-indigo-600 text-white" : "bg-indigo-400 hover:bg-indigo-500 text-white"
             }`}
             title="2분할"
@@ -155,7 +155,7 @@ export default function ContiViewer({ songs }: Props) {
           {/* 4분할 */}
           <button
             onClick={() => handleSplitMode(4)}
-            className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+            className={`w-8 h-8 rounded-sm flex items-center justify-center transition-colors ${
               splitMode === 4 ? "bg-indigo-600 text-white" : "bg-indigo-400 hover:bg-indigo-500 text-white"
             }`}
             title="4분할"
@@ -166,7 +166,7 @@ export default function ContiViewer({ songs }: Props) {
           {/* 새로고침 */}
           <button
             onClick={() => setViewerKey((k) => k + 1)}
-            className="w-10 h-10 rounded-lg bg-gray-400 hover:bg-gray-500 text-white flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-sm bg-gray-400 hover:bg-gray-500 text-white flex items-center justify-center transition-colors"
             title="화면 새로고침"
           >
             <RotateCcw className="w-5 h-5" />

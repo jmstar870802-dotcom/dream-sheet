@@ -52,7 +52,7 @@ export default async function ContiDetailPage({
   return (
     <div>
       <PageBreadcrumb pageTitle={isNew ? "콘티 신규" : "콘티 편집"} />
-      <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="min-h-screen rounded-lg border border-gray-200 bg-white px-2 py-2 dark:border-gray-800 dark:bg-white/[0.03]">
         <ContiDetailPanel
           conti={conti}
           initialSheets={sheets}
