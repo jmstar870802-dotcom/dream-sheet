@@ -67,11 +67,19 @@ export default function ContiViewer({ songs }: Props) {
   const displaySongs = songs.slice(currentGroupStart, currentGroupStart + splitMode);
 
   function handleTouchStart(e: React.TouchEvent) {
+    if (e.touches.length !== 1) {
+      touchStartX.current = null;
+      return;
+    }
     touchStartX.current = e.touches[0].clientX;
   }
 
   function handleTouchEnd(e: React.TouchEvent) {
     if (touchStartX.current === null) return;
+    if (e.changedTouches.length !== 1) {
+      touchStartX.current = null;
+      return;
+    }
     const delta = touchStartX.current - e.changedTouches[0].clientX;
     touchStartX.current = null;
     if (Math.abs(delta) < 50) return;
