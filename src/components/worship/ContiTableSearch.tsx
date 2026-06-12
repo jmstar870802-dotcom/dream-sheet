@@ -46,8 +46,8 @@ export default function ContiTableUpdate({ data, meta, showNewButton = true }: C
   const [searchInput, setSearchInput] = useState(searchParams.get("contiNote") ?? "");
   const [debounceTimer, setDebounceTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
 
-  const currentSortKey = searchParams.get("sortKey") ?? "id";
-  const currentSortDir = searchParams.get("sortDir") ?? "asc";
+  const currentSortKey = searchParams.get("sortKey") ?? "contiDate";
+  const currentSortDir = searchParams.get("sortDir") ?? "desc";
   const currentLimit = 20;
 
   const updateParams = useCallback(
