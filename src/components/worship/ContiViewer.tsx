@@ -20,6 +20,7 @@ export default function ContiViewer({ songs }: Props) {
   const [splitMode, setSplitMode] = useState<SplitMode>(1);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     if (!dropdownOpen) return;
@@ -64,6 +65,26 @@ export default function ContiViewer({ songs }: Props) {
   }
 
   const displaySongs = songs.slice(currentGroupStart, currentGroupStart + splitMode);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return;
+    const delta = touchStartX.current - e.changedTouches[0].clientX;
+    touchStartX.current = null;
+    if (Math.abs(delta) < 50) return;
+    if (delta > 0) {
+      // 왼쪽 스와이프 → 다음
+      const next = currentGroupStart + splitMode;
+      if (next < songs.length) handleSelect(next);
+    } else {
+      // 오른쪽 스와이프 → 이전
+      const prev = currentGroupStart - splitMode;
+      if (prev >= 0) handleSelect(prev);
+    }
+  }
 
   // 드롭다운 버튼 라벨: 분할 모드에 따라 범위 표시
   function groupLabel(start: number) {
@@ -176,7 +197,11 @@ export default function ContiViewer({ songs }: Props) {
 
       {/* 악보 영역 */}
       {splitMode === 1 ? (
-        <div className="w-full overflow-x-hidden md:max-w-2xl lg:max-w-2xl xl:max-w-3xl 2xl:max-w-4xl rounded-xl border border-gray-200 dark:border-gray-700">
+        <div
+          className="w-full overflow-x-hidden md:max-w-2xl lg:max-w-2xl xl:max-w-3xl 2xl:max-w-4xl rounded-xl border border-gray-200 dark:border-gray-700"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           <AbcViewer
             key={viewerKey}
             notationData={songs[currentGroupStart]}
@@ -184,7 +209,11 @@ export default function ContiViewer({ songs }: Props) {
           />
         </div>
       ) : (
-        <div className={`grid grid-cols-2 gap-2 ${splitMode === 4 ? "auto-rows-[44vh]" : ""}`}>
+        <div
+          className={`grid grid-cols-2 gap-2 ${splitMode === 4 ? "auto-rows-[44vh]" : ""}`}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {displaySongs.map((song, i) => (
             <div key={`${viewerKey}-${currentGroupStart + i}`} className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden h-full">
               <AbcViewer notationData={song} showBack={false} />
