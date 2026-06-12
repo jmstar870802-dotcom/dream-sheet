@@ -21,8 +21,8 @@ async function getContiData(searchParams: SearchParams): Promise<PaginatedRespon
     contiNote: searchParams.contiNote ?? "",
     page:      searchParams.page      ?? "1",
     limit:     searchParams.limit     ?? "10",
-    sortKey:   searchParams.sortKey   ?? "id",
-    sortDir:   searchParams.sortDir   ?? "asc",
+    sortKey:   searchParams.sortKey   ?? "contiDate",
+    sortDir:   searchParams.sortDir   ?? "desc",
   });
 
   const response = await fetch(
