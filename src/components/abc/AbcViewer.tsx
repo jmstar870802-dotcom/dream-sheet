@@ -5,7 +5,7 @@ import 'abcjs/abcjs-audio.css';
 import { SheetData } from '@/types/types';
 import 'react-toastify/dist/ReactToastify.css';
 import Button from '../ui/button/Button';
-import { ArrowBigUpDash, ArrowBigDownDash, IterationCcw, ArrowBigLeft, X, Maximize2 } from 'lucide-react';
+import { ArrowBigUpDash, ArrowBigDownDash, IterationCcw, ArrowBigLeft, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const AbcViewer = ({
@@ -219,35 +219,20 @@ const AbcViewer = ({
       </div>
 
       {formData.notation?.length ? (
-        <div className='relative'>
-          <div ref={paperRef} />
-          {enableModal && (
-            <button
-              className='absolute top-2 right-2 z-10 bg-black/30 hover:bg-black/60 text-white rounded-full p-1.5 transition-colors'
-              onClick={() => setNotationModal(true)}
-            >
-              <Maximize2 className='size-4' />
-            </button>
-          )}
-        </div>
+        <div
+          ref={paperRef}
+          onClick={() => enableModal && setNotationModal(true)}
+          style={enableModal ? { cursor: 'zoom-in' } : undefined}
+        />
       ) : formData.img_url ? (
-        <div className='relative'>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            ref={imgRef}
-            src={formData.img_url}
-            alt={formData.title}
-            style={{ width: 'auto', maxWidth: '100%', display: 'block' }}
-          />
-          {enableModal && (
-            <button
-              className='absolute top-2 right-2 z-10 bg-black/30 hover:bg-black/60 text-white rounded-full p-1.5 transition-colors'
-              onClick={() => setImgModal(true)}
-            >
-              <Maximize2 className='size-4' />
-            </button>
-          )}
-        </div>
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          ref={imgRef}
+          src={formData.img_url}
+          alt={formData.title}
+          onClick={() => enableModal && setImgModal(true)}
+          style={{ width: 'auto', maxWidth: '100%', display: 'block', ...(enableModal ? { cursor: 'zoom-in' } : {}) }}
+        />
       ) : (
         <p className='flex items-center justify-center text-gray-400 p-10'>악보 데이터가 없습니다.</p>
       )}
