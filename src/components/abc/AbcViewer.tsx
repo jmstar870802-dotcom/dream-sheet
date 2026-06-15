@@ -163,9 +163,9 @@ return (
       ) : formData.img_url ? (
         /* eslint-disable-next-line @next/next/no-img-element */
         <img
-src={formData.img_url}
+          src={formData.img_url}
           alt={formData.title}
-          style={{ width: '100%', display: 'block', objectFit: 'contain' }}
+          style={{ width: '100%', display: 'block', objectFit: 'cover' }}
         />
       ) : (
         <p className='flex items-center justify-center text-gray-400 p-10'>악보 데이터가 없습니다.</p>
