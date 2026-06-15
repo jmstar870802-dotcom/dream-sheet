@@ -262,7 +262,7 @@ const AbcViewer = ({
                 className='z-10 text-white bg-black/40 hover:bg-black/70 rounded-full p-1.5 transition-colors'
                 onClick={() => setNotationModal(false)}
               >
-                <X className='size-6' />
+                <X className='size-7' />
               </button>
             </div>
             <div ref={modalPaperRef} className='bg-white rounded-xl p-4' />
@@ -280,7 +280,7 @@ const AbcViewer = ({
               className='absolute top-2 right-2 z-10 text-white bg-black/40 hover:bg-black/70 rounded-full p-1.5 transition-colors'
               onClick={() => setImgModal(false)}
             >
-              <X className='size-6' />
+              <X className='size-7' />
             </button>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
