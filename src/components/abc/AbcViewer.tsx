@@ -19,6 +19,7 @@ const AbcViewer = ({
   const router = useRouter();
 
   const paperRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
   const [formData, setFormData] = useState<SheetData>(notationData);
   const [visualTranspose, setVisualTranspose] = useState<number>(0);
 
@@ -45,6 +46,33 @@ const AbcViewer = ({
     }
   };
 
+  const fitImageToScreen = useCallback(() => {
+    if (!imgRef.current) return;
+    imgRef.current.style.height = '';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!imgRef.current) return;
+        const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+        const top = imgRef.current.getBoundingClientRect().top;
+
+        let clipBottom = viewportHeight;
+        let el: HTMLElement | null = imgRef.current.parentElement;
+        while (el && el !== document.body) {
+          const cs = getComputedStyle(el);
+          if (cs.overflow === 'hidden' || cs.overflowY === 'hidden') {
+            clipBottom = Math.min(clipBottom, el.getBoundingClientRect().bottom);
+            break;
+          }
+          el = el.parentElement;
+        }
+
+        const available = clipBottom - top;
+        if (available > 0) {
+          imgRef.current.style.height = `${available}px`;
+        }
+      });
+    });
+  }, []);
 
   // 악보 높이가 가용 화면보다 크면 transform scale로 축소
   const fitToScreen = useCallback(() => {
@@ -122,8 +150,18 @@ const AbcViewer = ({
     };
   }, [fitToScreen]);
 
+  useEffect(() => {
+    if (!formData.img_url) return;
+    fitImageToScreen();
+    window.addEventListener('resize', fitImageToScreen);
+    window.visualViewport?.addEventListener('resize', fitImageToScreen);
+    return () => {
+      window.removeEventListener('resize', fitImageToScreen);
+      window.visualViewport?.removeEventListener('resize', fitImageToScreen);
+    };
+  }, [formData.img_url, fitImageToScreen]);
 
-return (
+  return (
     <div className='flex flex-col'>
       <div className='flex flex-row gap-2 justify-between p-2'>
         {showBack && (
@@ -162,11 +200,12 @@ return (
         <div ref={paperRef} />
       ) : formData.img_url ? (
         /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          src={formData.img_url}
-          alt={formData.title}
-          style={{ width: '100%', display: 'block', objectFit: 'cover' }}
-        />
+          <img
+            ref={imgRef}
+            src={formData.img_url}
+            alt={formData.title}
+            style={{ width: 'auto', maxWidth: '100%', display: 'block' }}
+          />
       ) : (
         <p className='flex items-center justify-center text-gray-400 p-10'>악보 데이터가 없습니다.</p>
       )}
