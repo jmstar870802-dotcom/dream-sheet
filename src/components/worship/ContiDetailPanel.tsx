@@ -3,7 +3,7 @@
 
 import { SheetData, Meta, ContiData } from "@/types/types";
 import { useState, useRef } from "react";
-import { Play, X, Save, Trash2 } from "lucide-react";
+import { Play, X, Save, Trash2, ChevronUp, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getPaginationRange } from "@/utils/pagination";
 import { createContiAction } from "@/action/createConti.action";
@@ -74,6 +74,16 @@ export default function ContiDetailPanel({ conti, initialSheets, initialMeta, in
 
   function handleRemoveSong(id: number) {
     setSelectedSongs((prev) => prev.filter((s) => s.id !== id));
+  }
+
+  function handleMoveSong(index: number, direction: "up" | "down") {
+    setSelectedSongs((prev) => {
+      const next = [...prev];
+      const target = direction === "up" ? index - 1 : index + 1;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
   }
 
   async function handleSave() {
@@ -301,13 +311,29 @@ export default function ContiDetailPanel({ conti, initialSheets, initialMeta, in
                           </div>
                         </div>
                       </td>
-                      <td className="px-2 py-2 w-10">
-                        <button
-                          onClick={() => handleRemoveSong(song.id)}
-                          className="flex justify-center items-center w-full text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                      <td className="px-2 py-2 w-20">
+                        <div className="flex items-center gap-1 justify-center">
+                          <button
+                            onClick={() => handleMoveSong(index, "up")}
+                            disabled={index === 0}
+                            className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                          >
+                            <ChevronUp className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleMoveSong(index, "down")}
+                            disabled={index === selectedSongs.length - 1}
+                            className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                          >
+                            <ChevronDown className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleRemoveSong(song.id)}
+                            className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))

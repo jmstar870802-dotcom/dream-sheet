@@ -192,7 +192,7 @@ const AbcViewer = ({
           ref={imgRef}
           src={formData.img_url}
           alt={formData.title}
-          style={{ width: 'auto', maxWidth: '100%', height: 'auto', objectFit: 'contain', objectPosition: 'left top', display: 'block' }}
+          style={{ width: '100%', height: 'auto', display: 'block' }}
         />
       ) : (
         <p className='flex items-center justify-center text-gray-400 p-10'>악보 데이터가 없습니다.</p>
