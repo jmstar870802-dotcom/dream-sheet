@@ -214,6 +214,7 @@ export default function ContiViewer({ songs }: Props) {
             key={viewerKey}
             notationData={songs[currentGroupStart]}
             showBack={false}
+            enableModal={false}
           />
         </div>
       ) : (

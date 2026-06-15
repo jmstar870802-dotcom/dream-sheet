@@ -5,15 +5,17 @@ import 'abcjs/abcjs-audio.css';
 import { SheetData } from '@/types/types';
 import 'react-toastify/dist/ReactToastify.css';
 import Button from '../ui/button/Button';
-import { ArrowBigUpDash, ArrowBigDownDash, IterationCcw, ArrowBigLeft } from 'lucide-react';
+import { ArrowBigUpDash, ArrowBigDownDash, IterationCcw, ArrowBigLeft, X, Maximize2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const AbcViewer = ({
   notationData,
   showBack = true,
+  enableModal = true,
 } : {
   notationData: SheetData;
   showBack?: boolean;
+  enableModal?: boolean;
 }) => {
 
   const router = useRouter();
@@ -22,6 +24,9 @@ const AbcViewer = ({
   const imgRef = useRef<HTMLImageElement>(null);
   const [formData, setFormData] = useState<SheetData>(notationData);
   const [visualTranspose, setVisualTranspose] = useState<number>(0);
+  const [imgModal, setImgModal] = useState(false);
+  const [notationModal, setNotationModal] = useState(false);
+  const modalPaperRef = useRef<HTMLDivElement>(null);
 
   const fnKeyUp = () => {
     setVisualTranspose(prev => prev + 1);
@@ -151,6 +156,23 @@ const AbcViewer = ({
   }, [fitToScreen]);
 
   useEffect(() => {
+    if (!notationModal || !modalPaperRef.current || !formData.notation?.length) return;
+    import('abcjs').then((abcjs) => {
+      abcjs.renderAbc(modalPaperRef.current!, formData.notation, {
+        responsive: 'resize',
+        visualTranspose: visualTranspose,
+        add_classes: true,
+        format: {
+          stafftopmargin: "10",
+          wordsfont: "15",
+          gchordfont: "bold 16",
+          vocalfont: "16"
+        }
+      });
+    });
+  }, [notationModal, formData.notation, visualTranspose]);
+
+  useEffect(() => {
     if (!formData.img_url) return;
     fitImageToScreen();
     window.addEventListener('resize', fitImageToScreen);
@@ -197,17 +219,92 @@ const AbcViewer = ({
       </div>
 
       {formData.notation?.length ? (
-        <div ref={paperRef} />
+        <div className='relative'>
+          <div ref={paperRef} />
+          {enableModal && (
+            <button
+              className='absolute top-2 right-2 z-10 bg-black/30 hover:bg-black/60 text-white rounded-full p-1.5 transition-colors'
+              onClick={() => setNotationModal(true)}
+            >
+              <Maximize2 className='size-4' />
+            </button>
+          )}
+        </div>
       ) : formData.img_url ? (
-        /* eslint-disable-next-line @next/next/no-img-element */
+        <div className='relative'>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             ref={imgRef}
             src={formData.img_url}
             alt={formData.title}
             style={{ width: 'auto', maxWidth: '100%', display: 'block' }}
           />
+          {enableModal && (
+            <button
+              className='absolute top-2 right-2 z-10 bg-black/30 hover:bg-black/60 text-white rounded-full p-1.5 transition-colors'
+              onClick={() => setImgModal(true)}
+            >
+              <Maximize2 className='size-4' />
+            </button>
+          )}
+        </div>
       ) : (
         <p className='flex items-center justify-center text-gray-400 p-10'>악보 데이터가 없습니다.</p>
+      )}
+
+      {notationModal && (
+        <div
+          className='fixed inset-0 z-50 flex items-start justify-center bg-black/80 pt-20 overflow-y-auto'
+          onClick={() => setNotationModal(false)}
+        >
+          <div className='relative w-full max-w-4xl mx-4' onClick={(e) => e.stopPropagation()}>
+            <div className='flex items-center justify-between mb-2'>
+              <div className='flex gap-1'>
+                <Button size="sm" variant="primary" className="h-7 sm:h-8 sm:w-26" buttonType="button" onClick={fnKeyDown}>
+                  <ArrowBigDownDash className='size-4 sm:size-5'/>
+                  <span className='hidden sm:inline'>키 다운</span>
+                </Button>
+                <Button size="sm" variant="primary" className="h-7 sm:h-8 sm:w-23" buttonType="button" onClick={fnKeySet}>
+                  <IterationCcw className='size-4 sm:size-5'/>
+                  <span className='hidden sm:inline'>원키</span>
+                </Button>
+                <Button size="sm" variant="primary" className="h-7 sm:h-8 sm:w-23" buttonType="button" onClick={fnKeyUp}>
+                  <ArrowBigUpDash className='size-4 sm:size-5'/>
+                  <span className='hidden sm:inline'>키업</span>
+                </Button>
+              </div>
+              <button
+                className='z-10 text-white bg-black/40 hover:bg-black/70 rounded-full p-1.5 transition-colors'
+                onClick={() => setNotationModal(false)}
+              >
+                <X className='size-6' />
+              </button>
+            </div>
+            <div ref={modalPaperRef} className='bg-white rounded-xl p-4' />
+          </div>
+        </div>
+      )}
+
+      {imgModal && (
+        <div
+          className='fixed inset-0 z-50 flex items-center justify-center bg-black/80'
+          onClick={() => setImgModal(false)}
+        >
+          <div className='relative' onClick={(e) => e.stopPropagation()}>
+            <button
+              className='absolute top-2 right-2 z-10 text-white bg-black/40 hover:bg-black/70 rounded-full p-1.5 transition-colors'
+              onClick={() => setImgModal(false)}
+            >
+              <X className='size-6' />
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={formData.img_url}
+              alt={formData.title}
+              style={{ maxWidth: '85vw', maxHeight: '85vh', objectFit: 'contain', display: 'block' }}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
