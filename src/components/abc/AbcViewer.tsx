@@ -134,6 +134,7 @@ const AbcViewer = ({
         responsive: 'resize',
         visualTranspose: visualTranspose,
         add_classes: true,
+        jazzchords : true,
         format: {
           stafftopmargin: "10",
           wordsfont: "15",
@@ -162,6 +163,7 @@ const AbcViewer = ({
         responsive: 'resize',
         visualTranspose: visualTranspose,
         add_classes: true,
+        
         format: {
           stafftopmargin: "10",
           wordsfont: "15",
