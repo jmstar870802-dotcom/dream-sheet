@@ -39,6 +39,13 @@ export interface ContiDtlData{
   visualTranspose : number;
 }
 
+export interface WorshipMemberData{
+  id : number;
+  teamNm : string;
+  createdAt: Date;  
+  updatedAt: Date;
+}
+
 
 
 export interface Meta {
